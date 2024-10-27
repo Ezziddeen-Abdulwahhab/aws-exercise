@@ -1,0 +1,415 @@
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  create
+
+Terraform will perform the following actions:
+
+  # aws_cloudwatch_log_group.ecs_log_group will be created
+  resource "aws_cloudwatch_log_group" "ecs_log_group" {
+      arn               = (known after apply)
+      id                = (known after apply)
+      name              = "/ecs/webapp"
+      name_prefix       = (known after apply)
+      retention_in_days = 0
+      skip_destroy      = false
+      tags_all          = (known after apply)
+    }
+
+  # aws_cloudwatch_metric_alarm.high_cpu will be created
+  resource "aws_cloudwatch_metric_alarm" "high_cpu" {
+      actions_enabled                       = true
+      alarm_actions                         = (known after apply)
+      alarm_name                            = "high-cpu-utilization"
+      arn                                   = (known after apply)
+      comparison_operator                   = "GreaterThanThreshold"
+      dimensions                            = {
+          "ClusterName" = "webapp-cluster"
+          "ServiceName" = "webapp-service"
+        }
+      evaluate_low_sample_count_percentiles = (known after apply)
+      evaluation_periods                    = 1
+      id                                    = (known after apply)
+      metric_name                           = "CPUUtilization"
+      namespace                             = "AWS/ECS"
+      period                                = 60
+      statistic                             = "Average"
+      tags_all                              = (known after apply)
+      threshold                             = 80
+      treat_missing_data                    = "missing"
+    }
+
+  # aws_docdb_subnet_group.webapp_subnet_group will be created
+  resource "aws_docdb_subnet_group" "webapp_subnet_group" {
+      arn         = (known after apply)
+      description = "Managed by Terraform"
+      id          = (known after apply)
+      name        = "webapp-subnet-group"
+      name_prefix = (known after apply)
+      subnet_ids  = (known after apply)
+      tags        = {
+          "Name" = "webapp-subnet-group"
+        }
+      tags_all    = {
+          "Name" = "webapp-subnet-group"
+        }
+    }
+
+  # aws_dynamodb_table.webapp_table will be created
+  resource "aws_dynamodb_table" "webapp_table" {
+      arn              = (known after apply)
+      billing_mode     = "PROVISIONED"
+      hash_key         = "key"
+      id               = (known after apply)
+      name             = "webapp-table"
+      read_capacity    = 5
+      stream_arn       = (known after apply)
+      stream_label     = (known after apply)
+      stream_view_type = (known after apply)
+      tags             = {
+          "Name" = "webapp-table"
+        }
+      tags_all         = {
+          "Name" = "webapp-table"
+        }
+      write_capacity   = 5
+
+      attribute {
+          name = "key"
+          type = "S"
+        }
+
+      point_in_time_recovery (known after apply)
+
+      server_side_encryption (known after apply)
+
+      ttl (known after apply)
+    }
+
+  # aws_ecr_repository.webapp will be created
+  resource "aws_ecr_repository" "webapp" {
+      arn                  = (known after apply)
+      id                   = (known after apply)
+      image_tag_mutability = "MUTABLE"
+      name                 = "webapp"
+      registry_id          = (known after apply)
+      repository_url       = (known after apply)
+      tags_all             = (known after apply)
+    }
+
+  # aws_ecs_cluster.webapp_cluster will be created
+  resource "aws_ecs_cluster" "webapp_cluster" {
+      arn                = (known after apply)
+      capacity_providers = (known after apply)
+      id                 = (known after apply)
+      name               = "webapp-cluster"
+      tags_all           = (known after apply)
+
+      default_capacity_provider_strategy (known after apply)
+
+      setting (known after apply)
+    }
+
+  # aws_ecs_service.webapp_service will be created
+  resource "aws_ecs_service" "webapp_service" {
+      cluster                            = (known after apply)
+      deployment_maximum_percent         = 200
+      deployment_minimum_healthy_percent = 100
+      desired_count                      = 1
+      enable_ecs_managed_tags            = false
+      enable_execute_command             = false
+      iam_role                           = (known after apply)
+      id                                 = (known after apply)
+      launch_type                        = "EC2"
+      name                               = "webapp-service"
+      platform_version                   = (known after apply)
+      scheduling_strategy                = "REPLICA"
+      tags_all                           = (known after apply)
+      task_definition                    = (known after apply)
+      triggers                           = (known after apply)
+      wait_for_steady_state              = false
+
+      network_configuration {
+          assign_public_ip = true
+          security_groups  = (known after apply)
+          subnets          = (known after apply)
+        }
+    }
+
+  # aws_ecs_task_definition.webapp_task_definition will be created
+  resource "aws_ecs_task_definition" "webapp_task_definition" {
+      arn                      = (known after apply)
+      arn_without_revision     = (known after apply)
+      container_definitions    = jsonencode(
+            [
+              {
+                  essential        = true
+                  image            = "717279720613.dkr.ecr.eu-north-1.amazonaws.com/tests/ahl:latest"
+                  logConfiguration = {
+                      logDriver = "awslogs"
+                      options   = {
+                          awslogs-group         = "/ecs/webapp"
+                          awslogs-region        = "eu-north-1"
+                          awslogs-stream-prefix = "ecs"
+                        }
+                    }
+                  name             = "webapp-container"
+                  portMappings     = [
+                      {
+                          containerPort = 8080
+                          hostPort      = 8080
+                        },
+                    ]
+                },
+            ]
+        )
+      cpu                      = "256"
+      execution_role_arn       = (known after apply)
+      family                   = "webapp-task-family"
+      id                       = (known after apply)
+      memory                   = "512"
+      network_mode             = "awsvpc"
+      requires_compatibilities = [
+          "EC2",
+        ]
+      revision                 = (known after apply)
+      skip_destroy             = false
+      tags_all                 = (known after apply)
+    }
+
+  # aws_iam_policy.dynamodb_access_policy will be created
+  resource "aws_iam_policy" "dynamodb_access_policy" {
+      arn         = (known after apply)
+      description = "Allows access to DynamoDB tables for ECS tasks"
+      id          = (known after apply)
+      name        = "dynamodb-access-policy"
+      name_prefix = (known after apply)
+      path        = "/"
+      policy      = jsonencode(
+            {
+              Statement = [
+                  {
+                      Action   = [
+                          "dynamodb:PutItem",
+                          "dynamodb:GetItem",
+                          "dynamodb:Query",
+                          "dynamodb:Scan",
+                          "dynamodb:UpdateItem",
+                          "dynamodb:DeleteItem",
+                        ]
+                      Effect   = "Allow"
+                      Resource = "arn:aws:dynamodb:eu-north-1:717279720613:table/webapp-table"
+                    },
+                ]
+              Version   = "2012-10-17"
+            }
+        )
+      policy_id   = (known after apply)
+      tags_all    = (known after apply)
+    }
+
+  # aws_iam_role.ecs_task_execution_role will be created
+  resource "aws_iam_role" "ecs_task_execution_role" {
+      arn                   = (known after apply)
+      assume_role_policy    = jsonencode(
+            {
+              Statement = [
+                  {
+                      Action    = "sts:AssumeRole"
+                      Effect    = "Allow"
+                      Principal = {
+                          Service = "ecs-tasks.amazonaws.com"
+                        }
+                    },
+                ]
+              Version   = "2012-10-17"
+            }
+        )
+      create_date           = (known after apply)
+      force_detach_policies = false
+      id                    = (known after apply)
+      managed_policy_arns   = (known after apply)
+      max_session_duration  = 3600
+      name                  = "ecs_task_execution_role"
+      name_prefix           = (known after apply)
+      path                  = "/"
+      role_last_used        = (known after apply)
+      tags_all              = (known after apply)
+      unique_id             = (known after apply)
+
+      inline_policy (known after apply)
+    }
+
+  # aws_iam_role_policy_attachment.ecs_task_dynamodb_access will be created
+  resource "aws_iam_role_policy_attachment" "ecs_task_dynamodb_access" {
+      id         = (known after apply)
+      policy_arn = (known after apply)
+      role       = "ecs_task_execution_role"
+    }
+
+  # aws_iam_role_policy_attachment.ecs_task_execution_role_policy will be created
+  resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
+      id         = (known after apply)
+      policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+      role       = "ecs_task_execution_role"
+    }
+
+  # aws_network_interface.webapp_interface will be created
+  resource "aws_network_interface" "webapp_interface" {
+      arn                       = (known after apply)
+      id                        = (known after apply)
+      interface_type            = (known after apply)
+      ipv4_prefix_count         = (known after apply)
+      ipv4_prefixes             = (known after apply)
+      ipv6_address_count        = (known after apply)
+      ipv6_address_list         = (known after apply)
+      ipv6_address_list_enabled = false
+      ipv6_addresses            = (known after apply)
+      ipv6_prefix_count         = (known after apply)
+      ipv6_prefixes             = (known after apply)
+      mac_address               = (known after apply)
+      outpost_arn               = (known after apply)
+      owner_id                  = (known after apply)
+      private_dns_name          = (known after apply)
+      private_ip                = (known after apply)
+      private_ip_list           = (known after apply)
+      private_ip_list_enabled   = false
+      private_ips               = [
+          "172.16.10.100",
+        ]
+      private_ips_count         = (known after apply)
+      security_groups           = (known after apply)
+      source_dest_check         = true
+      subnet_id                 = (known after apply)
+      tags                      = {
+          "Name" = "webapp_interface"
+        }
+      tags_all                  = {
+          "Name" = "webapp_interface"
+        }
+
+      attachment (known after apply)
+    }
+
+  # aws_security_group.webapp_security_group will be created
+  resource "aws_security_group" "webapp_security_group" {
+      arn                    = (known after apply)
+      description            = "Managed by Terraform"
+      egress                 = (known after apply)
+      id                     = (known after apply)
+      ingress                = (known after apply)
+      name                   = "webapp_security_group"
+      name_prefix            = (known after apply)
+      owner_id               = (known after apply)
+      revoke_rules_on_delete = false
+      tags                   = {
+          "Name" = "webapp-security-group"
+        }
+      tags_all               = {
+          "Name" = "webapp-security-group"
+        }
+      vpc_id                 = (known after apply)
+    }
+
+  # aws_sns_topic.webapp_alerts_topic will be created
+  resource "aws_sns_topic" "webapp_alerts_topic" {
+      arn                         = (known after apply)
+      content_based_deduplication = false
+      fifo_topic                  = false
+      id                          = (known after apply)
+      name                        = "ecs-alerts"
+      name_prefix                 = (known after apply)
+      owner                       = (known after apply)
+      policy                      = (known after apply)
+      signature_version           = (known after apply)
+      tags_all                    = (known after apply)
+      tracing_config              = (known after apply)
+    }
+
+  # aws_sns_topic_subscription.email_subscription will be created
+  resource "aws_sns_topic_subscription" "email_subscription" {
+      arn                             = (known after apply)
+      confirmation_timeout_in_minutes = 1
+      confirmation_was_authenticated  = (known after apply)
+      endpoint                        = "your-email@example.com"
+      endpoint_auto_confirms          = false
+      filter_policy_scope             = (known after apply)
+      id                              = (known after apply)
+      owner_id                        = (known after apply)
+      pending_confirmation            = (known after apply)
+      protocol                        = "email"
+      raw_message_delivery            = false
+      topic_arn                       = (known after apply)
+    }
+
+  # aws_subnet.webapp_subnet will be created
+  resource "aws_subnet" "webapp_subnet" {
+      arn                                            = (known after apply)
+      assign_ipv6_address_on_creation                = false
+      availability_zone                              = "eu-north-1"
+      availability_zone_id                           = (known after apply)
+      cidr_block                                     = "172.16.10.0/24"
+      enable_dns64                                   = false
+      enable_resource_name_dns_a_record_on_launch    = false
+      enable_resource_name_dns_aaaa_record_on_launch = false
+      id                                             = (known after apply)
+      ipv6_cidr_block_association_id                 = (known after apply)
+      ipv6_native                                    = false
+      map_public_ip_on_launch                        = false
+      owner_id                                       = (known after apply)
+      private_dns_hostname_type_on_launch            = (known after apply)
+      tags                                           = {
+          "Name" = "webapp_subnet"
+        }
+      tags_all                                       = {
+          "Name" = "webapp_subnet"
+        }
+      vpc_id                                         = (known after apply)
+    }
+
+  # aws_vpc.webapp_vpc will be created
+  resource "aws_vpc" "webapp_vpc" {
+      arn                                  = (known after apply)
+      cidr_block                           = "172.16.0.0/16"
+      default_network_acl_id               = (known after apply)
+      default_route_table_id               = (known after apply)
+      default_security_group_id            = (known after apply)
+      dhcp_options_id                      = (known after apply)
+      enable_classiclink                   = (known after apply)
+      enable_classiclink_dns_support       = (known after apply)
+      enable_dns_hostnames                 = (known after apply)
+      enable_dns_support                   = true
+      enable_network_address_usage_metrics = (known after apply)
+      id                                   = (known after apply)
+      instance_tenancy                     = "default"
+      ipv6_association_id                  = (known after apply)
+      ipv6_cidr_block                      = (known after apply)
+      ipv6_cidr_block_network_border_group = (known after apply)
+      main_route_table_id                  = (known after apply)
+      owner_id                             = (known after apply)
+      tags                                 = {
+          "Name" = "webapp-vpc"
+        }
+      tags_all                             = {
+          "Name" = "webapp-vpc"
+        }
+    }
+
+  # aws_vpc_security_group_ingress_rule.allow_webapp_http will be created
+  resource "aws_vpc_security_group_ingress_rule" "allow_webapp_http" {
+      arn                    = (known after apply)
+      cidr_ipv4              = "172.16.0.0/16"
+      from_port              = 8080
+      id                     = (known after apply)
+      ip_protocol            = "tcp"
+      security_group_id      = (known after apply)
+      security_group_rule_id = (known after apply)
+      tags_all               = {}
+      to_port                = 8080
+    }
+
+Plan: 19 to add, 0 to change, 0 to destroy.
+─────────────────────────────────────────────────────────────────────────────
+
+Note: You didn't use the -out option to save this plan, so Terraform can't
+guarantee to take exactly these actions if you run "terraform apply" now.
